@@ -32,8 +32,11 @@
     <script src="https://kit.fontawesome.com/2aff34493a.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
 
+    <script src="js/leaflet-simple-map-screenshoter.js"></script>
+    <script src="https://unpkg.com/file-saver/dist/FileSaver.js"></script>
+
     <style>
-        #map { height: 100%; background: #aad3df; }
+        #map { height: 750px; width: 1100px; background: #aad3df; }
         html, body {
 			height: 100%;
 			margin: 0;
@@ -64,20 +67,22 @@
 <body>
     <div id="map"></div>
     <div id='legend'>
+        
         <img src="img/legend.png" style="width:200px;" />
     </div> 
+    <div id="mapBigScreeningState"></div>
     <script>
 
         const apiKey = 'AAPK0192829bddd94a6fa77a9f5268fd7534-s34w8rj1KstCMBJV6l9QIkdF9Qs3pa8CNcIZfT7MoHApvpxHwKptuXx9Ln3ZDn8';
 
-        var map = L.map('map').setView([37.1661153,-119.451638], 7);
+        var map = L.map('map').setView([40.845067887978345, -122.08557128906251], 8);
 
     /*     // basemap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
- */
+    */
 
    // basemap
    L.control.scale().addTo(map);
@@ -104,7 +109,7 @@
         }).addTo(map);
 
         // us counties filtered by California
-        var countyLayer = L.Geoserver.wms("http://joydifranza.com:8080/geoserver/wfs", {
+        var countyLayer = L.Geoserver.wms("https://joydifranza.com:8443/geoserver/wfs", {
             layers: 'open_data:US_Counties',
             CQL_FILTER: "statefp='06'",
             attribution: "US Census Bureau"
@@ -112,7 +117,7 @@
         countyLayer.addTo(map); 
 
         // us states
-        var stateLayer = L.Geoserver.wms("http://joydifranza.com:8080/geoserver/wfs", {
+        var stateLayer = L.Geoserver.wms("https://joydifranza.com:8443/geoserver/wfs", {
             layers: 'open_data:US_States',
             attribution: "US Census Bureau"
         })
@@ -236,8 +241,33 @@
             locMarker.addTo(map);
         });
 
-        //setTimeout(function(){$('.pointer').fadeOut('slow');},3400);
+       map.on('moveend', function(e){
+        var ne = map.getBounds().getNorthEast();
+        var sw = map.getBounds().getSouthWest();
+        console.log(ne.lat + ", " + ne.lng + ", " + sw.lat  + ", " + sw.lng  + ", " + map.getZoom());
+        var ctr = map.getBounds().getCenter();
+        console.log(ctr.lat + ", " + ctr.lng)
+      }) 
 
+        // add plugin
+        L.simpleMapScreenshoter({
+            // custom screenshot name
+            screenName: function () {
+                return "Northern California"
+            }
+        }).addTo(map);
+
+        // show screening progress
+        map.on('simpleMapScreenshoter.takeScreen', function () {
+            document.getElementById('mapBigScreeningState').innerHTML = 'screening...<br>'
+        })
+        map.on('simpleMapScreenshoter.done', function () {
+            document.getElementById('mapBigScreeningState').innerHTML = 'screen end...<br>'
+        })
+        map.on('simpleMapScreenshoter.error', function (event) {
+            console.error(event.e)
+            document.getElementById('mapBigScreeningState').innerHTML = event.e.toString() + '<br>'
+        })
         
 
     </script>
