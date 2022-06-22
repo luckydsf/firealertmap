@@ -104,7 +104,7 @@
         }).addTo(map);
 
         // us counties filtered by California
-        var countyLayer = L.Geoserver.wms("http://joydifranza.com:8080/geoserver/wfs", {
+        var countyLayer = L.Geoserver.wms("https://joydifranza.com:8443/geoserver/wfs", {
             layers: 'open_data:US_Counties',
             CQL_FILTER: "statefp='06'",
             attribution: "US Census Bureau"
@@ -112,7 +112,7 @@
         countyLayer.addTo(map); 
 
         // us states
-        var stateLayer = L.Geoserver.wms("http://joydifranza.com:8080/geoserver/wfs", {
+        var stateLayer = L.Geoserver.wms("https://joydifranza.com:8443/geoserver/wfs", {
             layers: 'open_data:US_States',
             attribution: "US Census Bureau"
         })
