@@ -343,10 +343,12 @@
         }); 
 
 
-        // calculate first of this month and first of next month to filter the current_fire layer
-        const from_date = new Date(new Date().getFullYear().toString() + "-" + (new Date().getMonth() + 1).toString() + "-1")
-        const to_date = new Date(new Date().getMonth() == 11 ? (new Date().getFullYear() + 1).toString() + "-" + (1).toString() + "-1" : new Date().getFullYear().toString() + "-" + (new Date().getMonth() + 2).toString() + "-1")
-           
+        // calculate today and 28 days ago to filter the current_fire layer
+        const to_date = new Date(); 
+        var from_date = new Date();
+        from_date.setDate(from_date.getDate() - 28);
+
+
         const cfLayer = L.esri.featureLayer({
             url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/USA_Wildfires_v1/FeatureServer/0",
             timeField: "FireDiscoveryDateTime",
@@ -544,7 +546,7 @@
 				$(".collapse").collapse('hide');
 				$(".details").css('zIndex', '1');
 				const t = new Date().getTime();  // create "unique" id to open fresh copy of pdf file to prevent caching
-				const url = 'https://firealertmap.com/pdf/fire_severity_maps.pdf?t=' + t
+				const url = 'https://firealertmap.com/pdf/Fire_Severity_Maps.pdf?t=' + t
 				const pdfWin = window.open(url, 'new1');
 			});
             $("#pgeLink1").click(function(){  // after pg&e link is clicked, hide expanded navbar and put map back on top
