@@ -3,12 +3,13 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" /> 
+        <meta name="description" content="A map showing active wildfire locations, red flag warnings, fire weather watch, severe fire danger index overlay and jurisdictional boundaries."/>
         <title>Fire Alert Map</title>
         <meta property="og:title" content="Fire Alert Map" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="/img/flame-card.png" />
         <meta property="og:url" content="https://firealertmap.com" />
-        <meta property="og:description" content="Providing mapping information about fire conditions to support wildfire prevention and suppression and vegetation management." />
+        <meta property="og:description" content="A map showing active wildfire locations, red flag warnings, fire weather watch, severe fire danger index overlay and jurisdictional boundaries." />
         <meta property="og:locale" content="en_US" />
         <meta property="og:site_name" content="Fire Alert Map" />
         <meta name="twitter:card" content="summary"/>
@@ -78,7 +79,19 @@
                  display:flex;
             }
             
-            /* .table {width:100%;} */
+            .label {
+                font-weight: 700;
+                text-transform: uppercase;
+                text-align: center;
+                margin-top: -1em;
+            }
+
+            .label div {
+                position: relative;
+                left: -50%;
+                top: 10px;
+                text-shadow: 0px 2px 1px rgba(255,255,255,0.85);
+            }
             
 			
         </style>
@@ -109,10 +122,10 @@
                     <li class="nav-item">
                         <a class="nav-link text-white text-decoration-none" data-toggle="modal" href="#legendModal">Legend</a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         
                         <a class="nav-link text-white" href="#" id="pdfLink" >PDF version</a>
-                    </li>
+                    </li> -->
                     <li  class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Links
@@ -158,16 +171,17 @@
         <div class="modal-dialog  modal-dialog-centered modal-md">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title"><span class="bottom-align"><img alt="flame" src="img/flame-763x763.png" height="30"/>About</span></h4>
+                    <h4 class="modal-title"><span class="bottom-align"><img alt="flame" src="img/flame-763x763.png" height="30"/>About Fire Alert Map</span></h4>
                     <button type="button" class="btn-close" data-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="container-fluid">
-                       
+                       <p>A map showing active wildfire locations, red flag warnings, fire weather watch, severe fire danger index overlay and jurisdictional boundaries.</p>
                         <p><strong>Fire Alert Map</strong> gathers data from various sources to provide a map showing fire and related information to aid users in gaining an understanding of current environmental conditions to support vegetation management and wildfire prevention and suppression.</p>
                         <p>This website is formatted for use in the field (mobile), the office (desktop) and has the capability to be downloaded to PDF for offline reference for 3 specific areas in California.</p>
-                    
+                        <p style="font-size:10pt;"><strong>Disclaimer:</strong> This map is an independent effort developed to provide a general awareness of wildfire activity.  This  map should be used for reference purposes only and the contents of this map are derived from various federal and State of California government agencies and these layers are updated at their discretion. firealertmap.com is not responsible for the content or interpretation of the map.  If you are near a fire or feel that you are at risk, please contact your local authorities for information and updates. </p>
                         
+                        <p style="font-size:10pt;margin-bottom:0px;">&copy; Copyright <span id="currentYear"></span>,&nbsp;&nbsp;<a href="https://firealertmap.com" target="_blank" class="text-danger">firealertmap.com</a>.&nbsp;&nbsp;All Rights Reserved.</p>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -215,19 +229,27 @@
         })
 
         // us counties filtered by California
-        const countyLayer = L.Geoserver.wms("https://joydifranza.com:8443/geoserver/wms", {
+        const countyLayer = L.esri.featureLayer({
+            url: "https://services8.arcgis.com/EsYdoXvSDMltwf8k/arcgis/rest/services/US_Counties/FeatureServer/0",
+            //where: "statefp='06'",
+            //    style: {color:'#848484', weight:2, fillOpacity: 0},
+            //    attribution: "US Census Bureau"
+        })
+        
+
+        /* const countyLayer = L.Geoserver.wms("https://joydifranza.com:8443/geoserver/wms", {
             layers: 'open_data:US_Counties',
             CQL_FILTER: "statefp='06'",
             attribution: "US Census Bureau"//,
             
-        })
+        }) */
 
         // us states
-        const stateLayer = L.Geoserver.wms("https://joydifranza.com:8443/geoserver/wms", {
+        /* const stateLayer = L.Geoserver.wms("https://joydifranza.com:8443/geoserver/wms", {
             layers: 'open_data:US_States',
             attribution: "US Census Bureau",
             style: {color:'#848484', weight:2, fillOpacity:0}
-        })
+        }) */
  
         // ESRI Overlay of roads 
         const roadsLayer = L.tileLayer('https://services.arcgisonline.com/arcgis/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x} ', {
@@ -240,23 +262,23 @@
         })
 
         // usda forest boundaries
-        const forestLayer = L.Geoserver.wms("https://joydifranza.com:8443/geoserver/wms", {  //use geoserver method to load forestLayer!
+        /* const forestLayer = L.Geoserver.wms("https://joydifranza.com:8443/geoserver/wms", {  //use geoserver method to load forestLayer!
         //const forestLayer = L.tileLayer.wms("https://joydifranza.com:8443/geoserver/wms", { // this will make this layer load on top of sraLayer!
             layers: 'open_data:USFS_Forest_Boundaries_05',
             attribution: "USDA, USFS",
             format: 'image/png',
             transparent: true
-        })
+        }) */
        
         
         // responsibility areas
         //const sraLayer = L.Geoserver.wms("https://joydifranza.com:8443/geoserver/wms", {//use tileLayer method to load sraLayer!
-        const sraLayer = L.tileLayer.wms("https://joydifranza.com:8443/geoserver/wms", { // this will make this layer load below forestLayer!
+        /* const sraLayer = L.tileLayer.wms("https://joydifranza.com:8443/geoserver/wms", { // this will make this layer load below forestLayer!
             layers: 'open_data:State_Responsibility_Areas',
             attribution: "CAL FIRE",
             format: 'image/png',
             transparent: true
-        })
+        }) */
         
         //create a fill pattern for red flag warning layer
         const fillPattern1 =  new L.StripePattern({ angle: 30, weight: 5, color: 'black', opacity: 0.5});
@@ -428,16 +450,16 @@
             "CalFire Active Fires": afLayer,
             "Current Fires": cfLayer,
             "CA Counties": countyLayer,
-            "US States": stateLayer,
+            //"US States": stateLayer,
             "Roads": roadsLayer,
             "Places": placesLayer,
             "Red Flag Warning": rfwLayer,
             "Fire Weather Watch": fwwLayer,
             "Current Fire Perimeters": perimeterLayer,
             "National Park Boundaries (CA)": npsLayer,
-            "US Forest Boundaries (CA)": forestLayer ,
+            //"US Forest Boundaries (CA)": forestLayer ,
             "Fire Severity Index": fsLayer,
-            "Responsibility Areas (CA)": sraLayer
+            //"Responsibility Areas (CA)": sraLayer
         }
 
        //load all of the specified layers into the layer control
@@ -542,13 +564,13 @@
 				$(".details").css('zIndex', '1');
 			});
 			
-			$("#pdfLink").click(function(){  // after pdf link is clicked, hide expanded navbar and put map back on top
+			/* $("#pdfLink").click(function(){  // after pdf link is clicked, hide expanded navbar and put map back on top
 				$(".collapse").collapse('hide');
 				$(".details").css('zIndex', '1');
 				const t = new Date().getTime();  // create "unique" id to open fresh copy of pdf file to prevent caching
 				const url = 'https://firealertmap.com/pdf/Fire_Severity_Maps.pdf?t=' + t
-				const pdfWin = window.open(url, 'new1');
-			});
+				const pdfWin = window.open(url, 'new1'); 
+			});*/
             $("#pgeLink1").click(function(){  // after pg&e link is clicked, hide expanded navbar and put map back on top
 				$(".collapse").collapse('hide');
 				$(".details").css('zIndex', '1');
@@ -573,6 +595,9 @@
 				const url = 'https://gispub.epa.gov/airnow/?contours=ozonepm&monitors=none&xmin=-14989224.573248262&xmax=-10292933.555408282&ymin=3606322.6705888463&ymax=5411459.530571089';
 				const airWin4 = window.open(url, 'new5');
 			});
+
+            var d = new Date(); 
+            document.getElementById('currentYear').innerText = d.getFullYear();
         });
 
         
